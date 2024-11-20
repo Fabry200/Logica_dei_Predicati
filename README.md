@@ -22,6 +22,7 @@ Il progetto ruota attorno alla classe `Nodo`, che rappresenta i nodi di un alber
 - `tabella(n)`: Genera la tabella di verità per una proposizione con `n` atomi distinti.
 - `is_tautologia(n)`, `is_soddisfacibile(n)`, `is_falsificabile(n)`, `is_notsoddisfacibile(n)`: Verifica le proprietà logiche.
 - `calcola_equivalente()`: Applica la proprietà distributiva per trasformare una proposizione.
+- `costruisci(preposizione, nodo)`: costruisce l'albero delle preposizioni
 
 ## Requisiti
 
