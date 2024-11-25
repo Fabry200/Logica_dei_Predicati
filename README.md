@@ -13,7 +13,7 @@ Un progetto in Python per lavorare con proposizioni logiche, costruire alberi si
 - **Equivalenza logica**: Controlla se due proposizioni sono logicamente equivalenti.
 - **Costruzione di alberi sintattici**: Rappresenta le proposizioni in forma di albero binario.
 - **Generazione di proposizioni equivalenti**: Utilizza la proprietà distributiva per trasformare le proposizioni.
-- - **Generazione della DNF**: Trasforma le preposizioni nella forma disgiuntiva normale.
+-  **Generazione della DNF**: Trasforma le preposizioni nella forma disgiuntiva normale.
 
 
 ## Struttura del progetto
