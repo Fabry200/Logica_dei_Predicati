@@ -1,4 +1,3 @@
-#autore fabrizio verace I.A 2024
 # @title Soluzione con DNF
 from itertools import product
 
@@ -40,27 +39,28 @@ class Nodo:
     if n==1:
       self.tabella_verita=[[] for x in range(n*n+1)] #se la proposizione contiene un atomo, la tabella contiene due righe
     else:
-      self.tabella_verita=[[] for x in range(n*n)] #senno' contiene n per n righe
+      self.tabella_verita=[[] for x in range(len(self.p))] #senno' contiene n per n righe
     self.valori_verita=[]
 
-    lista_atomi=['s','p','q','r']
+    lista_atomi=[car for car in 'abcdefghilmnopqrstuvz']
 
     lista_atomi_presenti=set([x for x in self.name if x in lista_atomi]) #prima converto in set cosi elimino le ripetizioni di elementi poi in lista, cosi lavoro agevolmente
     lista_atomi_presenti=list(lista_atomi_presenti)
 
     dictb={'A': ' and ', 'O': ' or ', 'N': 'not '}
-    counter=0
+
+    
     for x in range(len(self.p)):
+
       for j in range(len(self.p[0])):
-         dictb[lista_atomi_presenti[counter]]=self.p[x][j]  #itero attraverso il prodotto cartesiano e assegno a dictb[atomo] il valore associato al prodotto cartesiano eseguito
+         dictb[lista_atomi_presenti[j]]=self.p[x][j]  #itero attraverso il prodotto cartesiano e assegno a dictb[atomo] il valore associato al prodotto cartesiano eseguito
          self.tabella_verita[x].append(self.p[x][j])
-         counter+=1
 
       self.valori_verita.append(self.values(dictb))
       self.tabella_verita[x].append(self.values(dictb))
+
       #print(dictb, self.values(dictb))
-      if counter == n: #resetto il counter, perche questo contatore deve andare da 0 a n sempre, cosi itero attraverso atomi_presenti[counter]
-        counter=0
+
 
     if scrittura==True:
       for rows in self.tabella_verita:
@@ -71,7 +71,7 @@ class Nodo:
       return self.valori_verita
 
   def is_tautologia(self,n):
-    for x in self.tabella(n):
+    for x in self.tabella(n,False):
       if x == False: #tutti true
         return False
     return True
@@ -82,7 +82,7 @@ class Nodo:
     else:
       return False
   def is_falsificabile(self,n):
-    for x in self.tabella(n): #almeno un false
+    for x in self.tabella(n, False): #almeno un false
       if x == False:
         return True
     return False
@@ -101,6 +101,7 @@ class Nodo:
       preposizione=None
       button=False
       for x in range(len(self.name)):
+
         if self.name[x] in atomi:
           elem=self.name[x]
           preposizione=self.name[x+1] #perche usiamo la notazione tokenizzata, quindi l'atomo  viene dopo la preposizione (solo perche abbiamo scelto di usare distribuitiva)
@@ -119,8 +120,7 @@ class Nodo:
 
       lista_atomi_presenti=[x for x in self.name if x in atomi and x not in lista_duplicati]
 
-      #print(preposizione)
-      #print(lista_atomi_presenti,lista_duplicati)
+    
       stringa='('+lista_duplicati[0]+preposizione+'('
 
       if preposizione=='A':
@@ -141,11 +141,12 @@ class Nodo:
 
   def dnf(self, numero_atomi):  #Forma normale disgiuntiva
     self.tabella(numero_atomi, scrittura=False)
-    self.dnf_table=[[] for x in range(numero_atomi*numero_atomi)]
-    self.dnf_preposition=[]
 
-    lista_atomi=['s','p','q','r']
-    lista_atomi_presenti=set([x for x in self.name if x in lista_atomi]) #prima converto in set cosi elimino le ripetizioni di elementi poi in lista, cosi lavoro agevolmente
+    self.dnf_table=[[] for x in range(len(self.p))]
+    dnf_preposition=[]
+    
+    lista_atomi=[car for car in 'abcdefghilmnopqrstuvz']
+    lista_atomi_presenti=set([x for x in self.name if x in lista_atomi])
     lista_atomi_presenti=list(lista_atomi_presenti)
     indice_atomi=0
 
@@ -159,26 +160,22 @@ class Nodo:
         else:
           self.dnf_table[counter].append(f'{value}')
         indice_atomi+=1
-    
-      stringa=stringa.replace('A', ' and  ').replace('N','not ').replace('O', ' or ')
-      stringa=Nodo(stringa)
-      self.dnf_preposition.append(stringa)
+
+      #La variabile: 'stringa' dentro questo ciclo contiene ogni preposizione della dnf, a cui sostituisco Or con And
+      dnf_preposition.append(stringa.replace('O','A')) 
       indice_atomi=0
       counter+=1
-    for rows in self.dnf_table:
-      print(rows)
 
-    stringa=' or '.join(rows.name for rows in self.dnf_preposition)
+    stringa=dnf_preposition[0]
+    for clausola in dnf_preposition[1:]:
+      stringa='('+stringa+'O'+clausola+')'
+
+
     stringa=Nodo(stringa)
 
-    stringa_copia=stringa.name.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
-    stringa_copia=Nodo(stringa_copia)
-    dizionario ={'p': False, 'q': False, 'r': False, 'A': ' and ', 'O': ' or ', 'N': 'not '} #1) dizionario per il primo caso
-    print(stringa_copia,'-->', stringa_copia.values(dizionario))
-    
     return stringa
 
-    
+
 
 
 def costruisci(albero, nodo):
@@ -225,20 +222,24 @@ def is_equal(p1,n1, p2, n2):
 def main():
   A='((p and q) and (not r))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
   B='((r or q) and (not r))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
-  C='(p or (not q))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
+  C='(p or (not p))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
   D='((p or q) and (p or r))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
-
-  p1=Nodo(A)
+  E='((p and q) or (s and (t or r)))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
+  F='((p and q) or (not p))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
+  #Sample di test
+  p1=Nodo(A) 
   p2=Nodo(B)
   p3=Nodo(C)
   p4=Nodo(D)
+  p5=Nodo(E)
+  p6=Nodo(F)
+  #dizionario ={'p': True, 'q': True, 'r': False, 'A': ' and ', 'O': ' or ', 'N': 'not '} #1) dizionario per il primo caso
 
-  dizionario ={'p': True, 'q': True, 'r': False, 'A': ' and ', 'O': ' or ', 'N': 'not '} #1) dizionario per il primo caso
   #print(p1.values(dizionario)) #1) caso, calcolare VdV per qualche valore che abbiamo assegnato (assegnazione manuale tramite dizionario)
   #print(p1.tabella(3)) #2) caso, calcolare la tabella di verita' di una proposizione (la funzione tabella returna la colonna dei VdV, ma la tabella diventa comunque un attributo della classe.)
   #print(p2.tabella(2)) #Bisogna specificare quanti atomi non ripetuti ci sono
   #print(p3.tabella(1)) #tabella 2x2
-  #print(p4.tabella(3))
+
   #print(p3.is_tautologia(1))  #3.1)Tautologia
   #print(p3.is_soddisfacibile(1)) #3.2)Soddisfacibile
   #print(p2.is_notsoddisfacibile(2)) #3.3)Non soddisfacibile
@@ -248,7 +249,7 @@ def main():
   #4) Calcolo della preposizione equivalente solo in un caso (come richiesto dal prof), con la proprieta dei predicati distribuitiva
   #print(p4.calcola_equivalente())
 
-    #verifico:
+    #verifico la proposizione equivalente:
   #preposizione_equivalente=Nodo(p4.calcola_equivalente().replace(' and ', 'A').replace('not ','N').replace(' or ', 'O'))
   #is_equal(p4,3,preposizione_equivalente,3)
 
@@ -256,8 +257,14 @@ def main():
   #costruisci(A,p1)
   #print(p1)
 
-  #costruzione della forma normale disgiuntiva (numero atomi da specificare)
-  #print(p3.dnf(2))
+  #5) costruzione della forma normale disgiuntiva 
+
+  #dnf=p6.dnf(2) #specifico il numero di atomi non ripetuti
+  #print(dnf.name.replace('A', ' and ').replace('N','not ').replace('O', ' or ')) #printa la preposizione (con le parentesi adeguate)
+  #print(dnf.is_tautologia(6)) #se vogliamo verificare... la tabella conterra' solo valori veri
+  #costruisci(dnf.name, dnf) #costruisco l'albero della dnf
+  #print(dnf) #printa albero dnf
+
 
 if __name__ == "__main__":
   main()
