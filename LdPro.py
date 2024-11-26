@@ -1,5 +1,6 @@
 # @title Soluzione con DNF
 from itertools import product
+import graphviz
 
 class Nodo:
   def __init__(self,name,parent=None):
@@ -7,6 +8,7 @@ class Nodo:
     self.left=None
     self.right=None
     self.parent=parent
+    self.dot = graphviz.Digraph(comment=self.name)
 
   def stampa(self, livello=0): #funzione di stampa, suggerita dal prof
     spazio=" "*livello+self.name+"\n"
@@ -220,6 +222,7 @@ def is_equal(p1,n1, p2, n2):
 
 
 def main():
+
   A='((p and q) and (not r))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
   B='((r or q) and (not r))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
   C='(p or (not p))'.replace(' and ', 'A').replace('not ','N').replace(' or ', 'O')
